@@ -1,0 +1,119 @@
+python raytracer project
+
+bugs {{{
+  
+  * lookat() with viewing dir straight up -- try different up vec like Z, etc
+
+}}}
+configuration {{{
+  
++ use optparse
+- -w, --workerspath 
+  Path to file containing hostnames or IPs of rendering slaves
+  Format of the file is:
+  Name, IP/Hostname[, Port]\n
+  Name, IP/Hostname[, Port]\n
+    :        :         :
+  Name, IP/Hostname[, Port]\n
+  
+}}}
+camera {{{
+
+  - better camera model other than pinhole camera
+  - different projection types (orthographic, omnimax, fisheye)
+  + specifying focal length or fovx and auto-deriving the other
+  + get some common film sizes for wide-angle, etc.
+
+}}}
+primitives {{{
+
+  + sphere
+  + plane
+  - box
+  - cone
+  - cylinder
+  - ellipsoid
+  - triangle
+  - mesh (brute force on triangles)
+
+}}}
+materials {{{
+
+  + simple diffuse
+    - does not use light color!
+  - phong
+  - cook and torrance
+  - reflection
+  - refraction
+  - transmission
+  - texture mapping 
+    - filtering
+      - bilinear, nearest neighbor
+
+}}}
+output {{{
+
+  + pixel array
+  + viewer using pygame
+  + resize window to set output dimensions
+}}}
+monitoring, statistics {{{
+
+  + gather basic statistics
+    + rays traced
+    + shadow, reflection, transission rays traced
+    + intersection tests (and how many failed) per primitive type
+    + total time taken
+
+}}}
+driver {{{
+
+  + multiple threads for rendering multiple rows?
+
+    - Tried -- always slower.
+
+  - magnification of area around mouse... separate thread.
+    read NxN area around mouse and scale to N*s x N*s area
+    blit to secondary surface... good to see bugs in reflection,
+    how antialiasing is doing, etc.
+
+}}}
+scene description language {{{
+
+  + use python for scene building
+  ? should we simplify tuple usage and not enforce vec3() all over?
+    we could promote tuple args to vec3() as needed in __init__'s
+    speed hit is minimal as world is built once.    
+    c=Camera(image_size)
+    c.lookat(eye=0,0,0, at=0,0,-1) 
+  - map xcolors (rgb.txt) and to named constants in a module
+    named colors (or borrow povray's color.inc)
+
+
+}}}
+world management {{{
+  
+  - create octree?
+  
+}}}
+distributed {{{
+
+  - since scene-lang is python, think it would be easy to pickle the scene,
+    send to other rendering clients on the network
+  - have each worker do a portion of the scene raytracing
+  - proxying to get into firewalls
+  - run python pytraced daemon on each box
+  - protocol should support progress updates (small packets)
+  - use asynccore
+
+  - have each worker do N scanlines of full raytracing.
+    once done, send back the pixels.  
+    if there's more work to do, give worker next avail line (locking).
+
+  - specifying workers... 
+    auto-discovery on an internal lan? broadcast?
+    support IP ranges for render farms on a LAN (192.168.1-3.1-255)
+
+}}}
+      
+vim:ft=text fen fdm=marker
